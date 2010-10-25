@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+libs = {
+  :backbone => "http://documentcloud.github.com/backbone/backbone.js",
+  :underscore => "http://documentcloud.github.com/underscore/underscore.js",
+  :jquery => "https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.js",
+  :rails => "http://github.com/rails/jquery-ujs/raw/master/src/rails.js"
+}
+
+pids = []
+libs.each do |(lib, path)|
+  pids << fork do
+    puts "downloading #{lib}"
+    exec "( wget -q -O public/javascripts/#{ lib }.js #{ path } && echo '#{lib}: done' ) || echo '#{lib}: failed'"
+  end
+end
+
+pids.each do |pid|
+  Process.wait pid
+end
+
+puts "Done"
